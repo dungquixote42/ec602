@@ -2,7 +2,7 @@
 
 class Polynomial():
     
-    def __init__(self, list_coeffs):
+    def __init__(self, list_coeffs=[]):
         "Initialize self."
         num_coeffs = len(list_coeffs)
         self.dict_coeffs = {}
@@ -12,7 +12,10 @@ class Polynomial():
             
     def __getitem__(self, key):
         "Get self[key]"
-        return self.dict_coeffs[key]
+        if key in self.dict_coeffs:
+            return self.dict_coeffs[key]
+        else:
+            return 0
             
     def __setitem__(self, key, value):
         "Set self[key] to value."
@@ -94,19 +97,13 @@ class Polynomial():
             if self.dict_coeffs[k] == 0:
                 self.pop(k)
         
-p = Polynomial([    4,  -9,   5.6])
-q = Polynomial([0, 0, 4, -9,   5.6])
-# p = Polynomial([1, 1])
-# q = Polynomial([1, 1])
-# r = p == q
-# p.eval(3.1) == 4*3.1**2 -9*3.1 +5.6
-# r = q.deriv()
-# r.dict_coeffs
-q.pop_zeros()
-q.dict_coeffs
 
 def main():
-    pass
+    p1 = Polynomial([4,0,1])
+    print(p1[1] == 0)
+    print(p1[10] == 0)
+    print(p1[100000] == 0)
+
 
 if __name__ == "__main__":
     main()
