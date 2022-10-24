@@ -8,8 +8,15 @@ class Wedding:
     
     
     def shuffle(self, guests):
+        
+        lg = len(guests)
+        if(lg < 2):
+            return guests
     
         l_shift = guests[1:] + guests[0]
+        if(lg == 2):
+            return [guests, l_shift]
+        
         r_shift = guests[-1] + guests[:-1]
         
         overflow = self.__shuffle(guests[1:-1])
@@ -32,12 +39,12 @@ class Wedding:
         return Y0 + Y1
     
     
-    def __append_str_to_strs(self, string, strings):
+    def __append_str_to_strs(self, string0, strings, string1=""):
         
-        if(len(strings) == 0):
-            return []
-        
-        return [string + strings[0]] + self.__append_str_to_strs(string, strings[1:])
+        for ii in range(0, len(strings)):
+            strings[ii] = string0 + strings[ii] + string1
+            
+        return strings
     
     
     def barriers(self, guests, bars):
@@ -45,8 +52,11 @@ class Wedding:
         if(len(bars) == 0):
             return self.shuffle(guests)
         
+        #bars = bars.sort()
+        
         bias = bars[0]
         guests = guests[bias:] + guests[:bias]
+        #bars = self.__normalize_bars(bars, bias)
         
         blocks = self.__split_guests_with_bars(guests, bars, bias)
         chunks = self.__expand_blocks(blocks)
@@ -62,40 +72,49 @@ class Wedding:
     
     def __split_guests_with_bars(self, guests, bars, bias):
         
-        new_bar0 = bars[0] - bias
+        lb = len(bars)
+        if(lb < 2):
+            return [guests]
+        
+        ret = []
+        for ii in range(0, lb-1):
+            ret.append(guests[bars[ii]:bars[ii+1]])
+        ret.append(guests[bars[-1]:])
 
-        if(len(bars) == 1):
-            return [guests[new_bar0:]]
-        
-        new_bar1 = bars[1] - bias
-        
-        return [guests[new_bar0:new_bar1]] + self.__split_guests_with_bars(guests, bars[1:], bias)
+        return ret
     
     
     def __expand_blocks(self, blocks):
         
-        if(blocks == []):
-            return []
+        for ii in range(0, len(blocks)):
+            blocks[ii] = self.__shuffle(blocks[ii])
         
-        return [self.__shuffle(blocks[0])] + self.__expand_blocks(blocks[1:])
+        return blocks
     
     
-    def __append_strs_ot_str(self, strings, string):
+#     def __append_strs_ot_str(self, strings, string):
         
-        if(strings == []):
-            return []
+#         if(strings == []):
+#             return []
         
-        is_bar = not (strings[0][0] == "|")
+#         is_bar = not (strings[0][0] == "|")
         
-        return [(is_bar*"|") + strings[0] + "|" + string] + self.__append_strs_ot_str(strings[1:], string)
+#         return [(is_bar*"|") + strings[0] + "|" + string] + self.__append_strs_ot_str(strings[1:], string)
     
     
-    def __append_strs_ot_strs(self, strs0, strs1):
+    def __append_strs_to_strs(self, strs_dest, strs_src):
         
-        if(strs1 == []):
-            return []
+        ret = []
+        for ii in range(0, strs_dest):
+            for jj in range(0, strs_src):
+                ret.append(strs_dest[ii] + strs_src[jj])
+                
+        return ret
         
-        return self.__append_strs_ot_str(strs0, strs1[0]) + self.__append_strs_ot_strs(strs0, strs1[1:])
+#         if(strs1 == []):
+#             return []
+        
+#         return self.__append_strs_ot_str(strs0, strs1[0]) + self.__append_strs_ot_strs(strs0, strs1[1:])
     
     
     def __barriers(self, chunks):
