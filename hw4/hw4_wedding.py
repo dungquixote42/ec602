@@ -49,28 +49,36 @@ class Wedding:
     
     def barriers(self, guests, bars):
         
-        if(len(bars) == 0):
+        lb = len(bars)
+        if(lb == 0):
             return self.shuffle(guests)
-        
-        #bars = bars.sort()
         
         bias = bars[0]
         guests = guests[bias:] + guests[:bias]
-        #bars = self.__normalize_bars(bars, bias)
+        for ii in range(0, lb):
+            bars[ii] -= bias
         
-        blocks = self.__split_guests_with_bars(guests, bars, bias)
-        chunks = self.__expand_blocks(blocks)
-        
-        ret = []
-        if(len(chunks) == 1):
-            ret = [self.__append_str_to_strs("|", chunks[0])]
+        blocks = []
+        if(lb < 2):
+            blocks = [guests]
         else:
-            ret = self.__barriers(chunks)
+            blocks = self.__split_guests_with_bars(guests, bars)
+        blocks = self.__expand_blocks(blocks)
+        blocks = self.__barriers(blocks)
+        blocks = self.__denormalize(blocks, bias)
+        
+        return blocks
+        
+#         ret = []
+#         if(len(chunks) == 1):
+#             ret = [self.__append_str_to_strs("|", chunks[0])]
+#         else:
+#             ret = self.__barriers(chunks)
             
-        return self.__denormalize(ret[0], bias)
+#         return self.__denormalize(ret[0], bias)
         
     
-    def __split_guests_with_bars(self, guests, bars, bias):
+    def __split_guests_with_bars(self, guests, bars):
         
         lb = len(bars)
         if(lb < 2):
@@ -102,13 +110,12 @@ class Wedding:
 #         return [(is_bar*"|") + strings[0] + "|" + string] + self.__append_strs_ot_str(strings[1:], string)
     
     
-    def __append_strs_to_strs(self, strs_dest, strs_src):
+    def __append_strs_to_strs(self, dest_strs, src_strs):
         
         ret = []
-        for ii in range(0, strs_dest):
-            for jj in range(0, strs_src):
-                ret.append(strs_dest[ii] + strs_src[jj])
-                
+        for dest_str in dest_strs:
+            for src_str in src_strs:
+                ret.append(dest_str + "|" + src_str)
         return ret
         
 #         if(strs1 == []):
@@ -119,13 +126,19 @@ class Wedding:
     
     def __barriers(self, chunks):
         
-        if(len(chunks) == 1):
-            return chunks
+        for ii in range(1, len(chunks)):
+            chunks[0] = self.__append_strs_to_strs(chunks[0], chunks[ii])
+        self.__append_str_to_strs("|", chunks[0])
         
-        chunks[0] = self.__append_strs_ot_strs(chunks[0], chunks[1])
-        chunks.pop(1)
+        return chunks[0]
         
-        return self.__barriers(chunks)
+#         if(len(chunks) == 1):
+#             return chunks
+        
+#         chunks[0] = self.__append_strs_to_strs(chunks[0], chunks[1])
+#         chunks.pop(1)
+        
+#         return self.__barriers(chunks)
     
     
     def __denormalize(self, strs, shift):
@@ -133,7 +146,12 @@ class Wedding:
         if(strs == []):
             return []
         
-        return [strs[0][-shift:]+strs[0][:-shift]] + self.__denormalize(strs[1:], shift)
+        for ii in range(0, len(strs)):
+            strs[ii] = strs[ii][-shift:]+strs[ii][:-shift]
+            
+        return strs
+        
+        #return [strs[0][-shift:]+strs[0][:-shift]] + self.__denormalize(strs[1:], shift)
 
 
 def  show_result(v, partial=False,ind=None):
