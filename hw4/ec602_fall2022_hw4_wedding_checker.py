@@ -15,6 +15,10 @@ import unittest
 # 2.0 adapt to curl_grading
 # 3.0 python version
 # 3.1 fall 2022 version
+# 3.2 bug fixes
+# 3.3 more bug fixes
+# 3.5 fix false 100% value
+# 3.6 allow itertools
 
 COURSE = 'ec602'
 SEMESTER = "fall2022"
@@ -25,7 +29,7 @@ DEBUG = True
 TIME_ALLOWED = 30
 
 
-VERSION, CURL_GRADING_VER = (3,1), (3, 6)
+VERSION, CURL_GRADING_VER = (3,6), (3, 6)
 
 
 
@@ -118,8 +122,8 @@ Tests['speed'] =[
 sp abcdefghijklmnopqrstu 24000
 sp abcdefghijklmnopqrstuvwxyz12 10000
 sp cdefghijklmnopqrstuvwxyz1234 100000
-bp cdefghijklmnopqrstuvwxyz1234 3 5 10 16 1000
-""",'ans':"""
+bp cdefghijklmnopqrstuvwxyz1234 3 5 10 16 1000""",
+'ans':"""
 24478 ucbedfhgikjmlnpoqrtsa
 24478 ucbedfhgikjmlnpoqrtsa
 710649 2bcdefgihkjlnmopqrtsuvxwyz1a
@@ -143,11 +147,12 @@ class WeddingTestCase(unittest.TestCase):
               try:
                 T = sub.run(['python','hw4_wedding.py'],input=f"{cmd}\nquit\n",
                   stdout=sub.PIPE,stderr=sub.PIPE,universal_newlines=True,timeout=TIME_ALLOWED)
+                _,result = T.stdout.split("n barriers ind\n")
+                result += "\n" + T.stderr
+                result = result.strip()
               except Exception as e:
                 self.fullfail(testname,str(e))
-              _,result = T.stdout.split("n barriers ind\n")
-              result += "\n" + T.stderr
-              result = result.strip()
+
               if 'hex' in test:
                   hexs = hexdigest_summary(result)
                   ans = test['hex']
@@ -173,10 +178,10 @@ class WeddingTestCase(unittest.TestCase):
     def setUpClass(cls):
         cls.Points={"standard":10,"shuffles":25,"barriers":25,"speed":30,"style":10}
         cls.MaxPoints = cls.Points.copy() 
-        cls.Penalty = {'includes':100,'authors':100}
+        cls.Penalty = {'libraries':100,'authors':100}
         cls.stylemax = cls.Points['style']
         cls.authorlimit = 3
-        cls.valid_includes =set()
+        cls.valid_includes ={"itertools"}
 
         cls.refcode = {'lines':125,'words':437}
         cls.msgs=[]
@@ -235,8 +240,9 @@ class WeddingTestCase(unittest.TestCase):
         self.fail(f'Failed to make target time of {TARGET}. Your normalized time:{your_time:.2g}.')
       elif your_time < BONUS_TARGET:
         bonus = 2 * (BONUS_TARGET - your_time)
-        self.Points['speed'] += bonus
-        self.msgs.append(f'speed: bonus points awarded! {bonus:5.3g}\n')
+        if self.Points['speed']:
+           self.Points['speed'] += bonus
+           self.msgs.append(f'speed: bonus points awarded! {bonus:5.3g}\n')
       else:
         self.msgs.append(f"speed: met target time of {TARGET} sec\n")
 

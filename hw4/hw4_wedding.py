@@ -157,9 +157,10 @@ class Wedding:
 def  show_result(v, partial=False,ind=None):
   v.sort()
   if not partial:
-    print("",len(v),"\n".join(v),sep="\n")
+    print(len(v),"\n".join(v),sep="\n")
   else:
-    print("",len(v),v[ind],sep="\n")
+    print(len(v),v[ind],sep="\n")
+
 
 
 
@@ -209,7 +210,7 @@ bp guests n barriers ind
   w = Wedding()
   while True:
     asktype=input().split()
-    if asktype[0] == "quit":
+    if not asktype or asktype[0] == "quit":
       break;
     elif asktype[0] == "tests":
       standard_tests()
