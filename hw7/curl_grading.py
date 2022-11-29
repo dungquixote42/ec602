@@ -44,8 +44,9 @@ DEBUG = False
 # 3.4 remove path requirement
 # 3.5 pylint working on Windows and *nix
 # 3.6 removed debug print statement
+# 3.7 allow for code analysis disable.
 
-VERSION = (3, 6)
+VERSION = (3, 7)
 
 
 class TimeoutException(Exception):
@@ -291,7 +292,11 @@ def compile(self,prefix):
           raise unittest.SkipTest("Compile failed.\n"+str(e))
         finally:
             os.remove(new_source_file)
-        self.code_metrics = code_analysis_cpp(self.realfilename,self.lintoptions)
+        if self.check_code:
+            self.code_metrics = code_analysis_cpp(self.realfilename,self.lintoptions)
+        else:
+            self.code_metrics = dict()
+
         return (T.returncode,T.stderr)
 
 
@@ -311,7 +316,11 @@ def compile_and_run(self,prefix):
 
 def bracket_check(self):
     "brackets. check for brackets"
-    bracket_count =  self.code_metrics['brackets']
+    the_lines = read_file_for_cpplint(self.realfilename)
+    bracket_count = sum(x.count('[') for x in the_lines)
+    bracket_count += sum(x.count('<:') for x in the_lines)
+    bracket_count -= sum(x.count('argv[') for x in the_lines)
+    
     if bracket_count:
       self.fail(bracket_msg.format(bracket_count))
 
@@ -527,10 +536,6 @@ def code_analysis_cpp(program_filename,lintoptions):
     num_lines=len(the_lines)
     num_words = sum(len(x.split()) for x in the_lines)
 
-    num_brackets = sum(x.count('[') for x in the_lines)
-    num_brackets += sum(x.count('<:') for x in the_lines)
-    num_brackets -= sum(x.count('argv[') for x in the_lines)
-    
 
     original = read_file(program_filename)
     proc_astyle = sub.run(
