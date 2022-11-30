@@ -1,8 +1,9 @@
 // Copyright 2022 Hyunsoo Kim hkim42@bu.edu
 
 #include <iostream>
+#include <cstdint>
 
-#define TYPE    long unsigned int
+#define TYPE    long long unsigned int
 
 using namespace std;
 
@@ -12,12 +13,10 @@ int main()
     {
         // init
         TYPE input;
-        std::cout << "\n";
         std::cin >> input;
 
-        // we will only do first half of divisors
-        TYPE *_2nd_half = (TYPE*) malloc(0);
-        int len_half = 0;
+        TYPE checksum = 0;
+        TYPE last_divisor = 0;
 
         // exit condition
         if(input == 0)
@@ -42,9 +41,8 @@ int main()
                     std::cout << "+" << divisor;
                     divsum += divisor + quotient;
 
-                    // since 2nd half is computed out of order, save them in an array
-                    _2nd_half = (TYPE*) realloc(_2nd_half, ++len_half*sizeof(TYPE));
-                    _2nd_half[len_half-1] = quotient;
+                    checksum = checksum * divisor + last_divisor;
+                    last_divisor = divisor;
                 }
                 ++divisor;
             }
@@ -53,12 +51,17 @@ int main()
             if(divisor*divisor == input)
                 std::cout << "+" << divisor;
 
-            // append other half of divisors computed before
-            for(int i = 0; i < len_half; ++i)
-                std::cout << "+" << _2nd_half[len_half-1-i];
+            while(last_divisor > 0)
+            {
+                std::cout << "+" << (input/last_divisor);
+
+                TYPE temp = checksum;
+                checksum = checksum / last_divisor;
+                last_divisor = temp % last_divisor;
+            }
 
             // final output
-            std::cout << " = " << divsum;
+            std::cout << " = " << divsum << "\n";
         }
     }
 }
