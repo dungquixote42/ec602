@@ -9,7 +9,7 @@ using namespace std;
 int my_strlen(char* input)
 {
     int output = 0;
-    while(input[output] != '\0')
+    while(*(input+output) != '\0')
         ++output;
     return output;
 }
@@ -21,7 +21,7 @@ int my_atoi(char* input, int base)
     for(int i = 0; i < len_input; ++i)
     {
         number *= base;
-        number += input[i] - '0';
+        number += *(input+i) - '0';
     }
     return number;
 }
