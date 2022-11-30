@@ -15,9 +15,6 @@ int main()
         TYPE input;
         std::cin >> input;
 
-        TYPE checksum = 0;
-        TYPE last_divisor = 0;
-
         // exit condition
         if(input == 0)
             return 0;
@@ -31,7 +28,7 @@ int main()
             TYPE divisor = 2;
 
             // quit when first half of divisors are computed
-            while(divisor*divisor < input)
+            while(divisor < input)
             {
                 TYPE quotient = input / divisor;
 
@@ -39,25 +36,9 @@ int main()
                 if(input == quotient * divisor)
                 {
                     std::cout << "+" << divisor;
-                    divsum += divisor + quotient;
-
-                    checksum = checksum * divisor + last_divisor;
-                    last_divisor = divisor;
+                    divsum += divisor;
                 }
                 ++divisor;
-            }
-
-            // handle edge case where input is integer-squared
-            if(divisor*divisor == input)
-                std::cout << "+" << divisor;
-
-            while(last_divisor > 0)
-            {
-                std::cout << "+" << (input/last_divisor);
-
-                TYPE temp = checksum;
-                checksum = checksum / last_divisor;
-                last_divisor = temp % last_divisor;
             }
 
             // final output
