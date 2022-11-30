@@ -9,10 +9,10 @@ int cmd_to_int(char* input, int base)
 {   
     int output = 0;
     int i_input = -1;
-    while(input[++i_input] != '\0')
+    while(*(input+(++i_input)) != '\0')
     {
         output *= base;
-        output += input[i_input] - '0';
+        output += *(input+i_input) - '0';
     }
     return output;
 }
